@@ -1,0 +1,137 @@
+/* predict.css
+   Scoped design tokens + helpers for the Predict page.
+   Must be imported only by the Predict page wrapper and used under .predict-root.
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Scoped tokens: use .predict-root to avoid overriding global :root --- */
+.predict-root {
+  /* Traffic Prediction Dark Theme tokens (scoped) */
+  --background: 220 13% 13%;
+  --foreground: 210 40% 98%;
+
+  --card: 220 13% 16%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 220 13% 16%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 217 91% 60%;
+  --primary-foreground: 220 13% 13%;
+
+  --secondary: 220 13% 20%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 220 13% 18%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 217 91% 60%;
+  --accent-foreground: 220 13% 13%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 220 13% 25%;
+  --input: 220 13% 20%;
+  --ring: 217 91% 60%;
+
+  --radius: 0.75rem;
+
+  /* Custom Traffic Prediction Colors */
+  --prediction-bg: 220 13% 13%;
+  --prediction-pattern: 220 13% 14%;
+  --prediction-pattern-alt: 220 13% 26%;
+  --prediction-chart-bg: 220 13% 16%;
+  --prediction-accent: 217 91% 60%;
+  --prediction-success: 142 76% 36%;
+  --prediction-warning: 38 92% 50%;
+  --prediction-text: 210 40% 98%;
+  --prediction-text-muted: 215 20% 65%;
+}
+
+/* --- Pattern & cubes (scoped) --- */
+.predict-root .traffic-pattern-bg {
+  background: repeating-linear-gradient(
+    135deg,
+    hsl(var(--prediction-bg)) 0px,
+    hsl(var(--prediction-bg)) 60px,
+    hsl(var(--prediction-pattern) / 0.6) 70px,
+    hsl(var(--prediction-pattern-alt)) 130px
+  );
+  min-height: 100%;
+}
+
+.predict-root .traffic-cubes {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  left: -30%;
+  top: -20%;
+  opacity: 0.05;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 25% 25%, hsl(var(--prediction-accent) / 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, hsl(var(--prediction-accent) / 0.1) 0%, transparent 50%);
+  animation: predictCubeMove 18s ease-in-out infinite alternate;
+}
+
+@keyframes predictCubeMove {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-20%) scale(1.02) rotate(1deg); }
+}
+
+/* --- Scoped reset (use @apply inside a class) --- */
+.predict-root * {
+  @apply border-border;
+}
+
+/* Apply the scoped background and text colors to the page container */
+.predict-root {
+  @apply bg-background text-foreground;
+}
+
+/* --- Helpers and utility fallbacks used by Predict components --- */
+@layer utilities {
+  .predict-root .bg-prediction-chart-bg {
+    background: hsl(var(--prediction-chart-bg));
+    color: hsl(var(--prediction-text));
+  }
+
+  .predict-root .text-prediction-text {
+    color: hsl(var(--prediction-text));
+  }
+
+  .predict-root .text-prediction-text-muted {
+    color: hsl(var(--prediction-text-muted));
+  }
+
+  .predict-root .bg-prediction-success\/20 {
+    background-color: color-mix(in srgb, hsl(var(--prediction-success)) 20%, transparent);
+  }
+
+  .predict-root .border-prediction-success\/30 {
+    border-color: color-mix(in srgb, hsl(var(--prediction-success)) 30%, transparent);
+  }
+
+  /* convenience helpers used in modelcard */
+  .predict-root .bg-secondary\/50 {
+    background-color: color-mix(in srgb, hsl(var(--secondary)), transparent 50%);
+  }
+
+  .predict-root .bg-card\/30 {
+    background-color: color-mix(in srgb, hsl(var(--card)), transparent 30%);
+  }
+
+  .predict-root .shadow-elevated {
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+  }
+}
+
+/* Small fallback for older browsers that don't support color-mix */
+@supports not (color: color-mix(in srgb, red 1%, blue)) {
+  .predict-root .bg-prediction-success\/20 { background-color: hsl(var(--prediction-success) / 0.2); }
+  .predict-root .border-prediction-success\/30 { border-color: hsl(var(--prediction-success) / 0.3); }
+}

@@ -1,0 +1,96 @@
+/* src/pages/SmsSim/smssim-scoped.css
+   Scoped tokens + decorative shapes for SMS page.
+   This forces the design system variables for everything inside .sms-root,
+   preventing leaked or global CSS from changing the colors.
+*/
+
+.sms-root {
+  /* Core Charcoal background & text (same tokens as src/index.css but scoped) */
+  --background: 210 9% 16%;
+  --foreground: 210 40% 98%;
+
+  /* Card & Container Colors */
+  --card: 210 9% 22%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 210 9% 22%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Charcoal Blue Primary */
+  --primary: 210 9% 31%;
+  --primary-foreground: 210 40% 98%;
+  --primary-glow: 210 9% 40%;
+
+  /* Charcoal Green Secondary */
+  --secondary: 142 9% 35%;
+  --secondary-foreground: 210 40% 98%;
+  --secondary-glow: 142 9% 45%;
+
+  --muted: 210 9% 20%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 210 9% 28%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 210 9% 25%;
+  --input: 210 9% 22%;
+  --ring: 210 9% 35%;
+
+  --radius: 0.75rem;
+
+  /* Gradients & shadows (optional helpers) */
+  --gradient-primary: linear-gradient(135deg, hsl(210 9% 31%), hsl(142 9% 35%));
+  --gradient-glow: linear-gradient(135deg, hsl(210 9% 40% / 0.3), hsl(142 9% 45% / 0.3));
+  --gradient-hero: linear-gradient(135deg, hsl(210 9% 16%), hsl(210 9% 20%), hsl(142 9% 18%));
+  --shadow-glow-blue: 0 0 40px hsl(210 9% 40% / 0.3);
+  --shadow-glow-green: 0 0 40px hsl(142 9% 35% / 0.3);
+  --shadow-elevated: 0 25px 50px -12px hsl(210 9% 10% / 0.8);
+}
+
+/* Decorative background shapes (scoped) */
+.sms-root .pattern-bg {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    #232526 0px,
+    #232526 60px,
+    #23252699 70px,
+    #414345 130px
+  );
+  z-index: 0;
+}
+
+.sms-root .cube-svg {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  left: -30%;
+  top: -20%;
+  background: transparent;
+  opacity: 0.7;
+  z-index: 1;
+  pointer-events: none;
+  animation: cubeMove 18s linear infinite alternate;
+  mix-blend-mode: multiply;
+}
+
+@keyframes cubeMove {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-20%) scale(1.02) rotate(1deg); }
+}
+
+.sms-root .page-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Small fallback: ensure any explicit .bg-card uses a safe background */
+.sms-root .bg-card,
+.sms-root .card,
+.sms-root .Card {
+  background-color: hsl(var(--card));
+}

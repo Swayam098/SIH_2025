@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scoped Community design system and utilities.
+   All tokens and body/background rules are scoped to .community-root
+   so they don't affect the rest of the site.
+*/
+
+/* ✅ Just a normal CSS block, not inside @layer */
+.community-root {
+  /* Dark Charcoal Color Palette - matching user's provided colors */
+  --background: 210 9% 16%; /* #232526 equivalent */
+  --foreground: 210 40% 98%;
+
+  --card: 210 9% 22%; /* Slightly lighter than background */
+  --card-foreground: 210 40% 98%;
+
+  --popover: 210 9% 22%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Primary colors - keeping charcoal theme with accent */
+  --primary: 210 9% 31%; /* #414345 equivalent */
+  --primary-foreground: 210 40% 98%;
+  --primary-hover: 210 9% 35%;
+
+  /* Secondary colors - slightly lighter for contrast */
+  --secondary: 210 9% 28%;
+  --secondary-foreground: 210 40% 98%;
+  --secondary-hover: 210 9% 32%;
+
+  --muted: 210 9% 20%;
+  --muted-foreground: 210 20% 65%;
+
+  --accent: 210 9% 25%;
+  --accent-foreground: 210 40% 98%;
+
+  /* Status colors - adjusted for dark theme */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --warning: 48 96% 53%;
+  --warning-foreground: 210 9% 16%;
+  --success: 142 76% 36%;
+  --success-foreground: 210 40% 98%;
+
+  --border: 210 9% 25%;
+  --input: 210 9% 25%;
+  --ring: 210 9% 35%;
+
+  --radius: 0.75rem;
+
+  /* Gradients using the exact user colors */
+  --gradient-primary: linear-gradient(135deg, hsl(210 9% 16%), hsl(210 9% 31%));
+  --gradient-secondary: linear-gradient(135deg, hsl(210 9% 22%), hsl(210 9% 28%));
+  --gradient-stats: linear-gradient(135deg, hsl(210 9% 31% / 0.3), hsl(210 9% 22% / 0.3));
+
+  /* Shadows adjusted for dark theme */
+  --shadow-card: 0 4px 6px -1px hsl(210 9% 8% / 0.3), 0 2px 4px -1px hsl(210 9% 8% / 0.2);
+  --shadow-elevated: 0 10px 15px -3px hsl(210 9% 8% / 0.4), 0 4px 6px -2px hsl(210 9% 8% / 0.3);
+
+  /* Animations */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  @apply bg-background text-foreground;
+  background: repeating-linear-gradient(
+    135deg,
+    #232526 0px,
+    #232526 60px,
+    #414345 130px
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Global reset (still scoped with class) */
+.community-root * {
+  @apply border-border;
+}
+
+/* Utilities that depend on tokens */
+@layer utilities {
+  .community-root .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .community-root .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .community-root .gradient-stats {
+    background: var(--gradient-stats);
+  }
+
+  .community-root .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .community-root .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .community-root .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .community-root .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+
+  /* fallback helpers */
+  .community-root .bg-card,
+  .community-root .card,
+  .community-root .Card {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+  }
+
+  .community-root .text-primary {
+    color: hsl(var(--primary));
+  }
+
+  .community-root .text-muted-foreground {
+    color: hsl(var(--muted-foreground));
+  }
+}

@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Charcoal Smart City Design System - All colors in HSL */
+
+@layer base {
+  :root {
+    /* Core Charcoal background & text */
+    --background: 210 9% 16%; /* dark charcoal */
+    --foreground: 210 40% 98%;
+
+    /* Card & Container Colors */
+    --card: 210 9% 22%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 210 9% 22%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Charcoal Blue Primary */
+    --primary: 210 9% 31%;
+    --primary-foreground: 210 40% 98%;
+    --primary-glow: 210 9% 40%;
+
+    /* Charcoal Green Secondary */
+    --secondary: 142 9% 35%;
+    --secondary-foreground: 210 40% 98%;
+    --secondary-glow: 142 9% 45%;
+
+    --muted: 210 9% 20%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 210 9% 28%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 9% 25%;
+    --input: 210 9% 22%;
+    --ring: 210 9% 35%;
+
+    --radius: 0.75rem;
+
+    /* Charcoal gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 9% 31%), hsl(142 9% 35%));
+    --gradient-glow: linear-gradient(135deg, hsl(210 9% 40% / 0.3), hsl(142 9% 45% / 0.3));
+    --gradient-hero: linear-gradient(135deg, hsl(210 9% 16%), hsl(210 9% 20%), hsl(142 9% 18%));
+    
+    /* Shadows */
+    --shadow-glow-blue: 0 0 40px hsl(210 9% 40% / 0.3);
+    --shadow-glow-green: 0 0 40px hsl(142 9% 35% / 0.3);
+    --shadow-elevated: 0 25px 50px -12px hsl(210 9% 10% / 0.8);
+    
+    --animation-duration: 0.3s;
+    --animation-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    --background: 210 9% 16%;
+    --foreground: 210 40% 98%;
+    --card: 210 9% 22%;
+    --card-foreground: 210 40% 98%;
+    --popover: 210 9% 22%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 9% 31%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 142 9% 35%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 9% 20%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 210 9% 28%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 9% 25%;
+    --input: 210 9% 22%;
+    --ring: 210 9% 35%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: var(--gradient-hero);
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .btn-hero {
+    @apply bg-primary text-primary-foreground hover:shadow-[var(--shadow-glow-blue)] 
+           transition-all duration-300 hover:scale-105 active:scale-95
+           border border-primary/20 backdrop-blur-sm;
+  }
+  
+  .btn-secondary-hero {
+    @apply bg-secondary text-secondary-foreground hover:shadow-[var(--shadow-glow-green)]
+           transition-all duration-300 hover:scale-105 active:scale-95
+           border border-secondary/20 backdrop-blur-sm;
+  }
+  
+  .card-feature {
+    @apply bg-card/50 backdrop-blur-md border border-border/50 
+           hover:border-primary/30 hover:shadow-[var(--shadow-glow-blue)]
+           transition-all duration-500 hover:scale-105 hover:-translate-y-2;
+  }
+  
+  .text-glow-blue {
+    text-shadow: 0 0 20px hsl(210 9% 40% / 0.5);
+  }
+  
+  .text-glow-green {
+    text-shadow: 0 0 20px hsl(142 9% 35% / 0.5);
+  }
+  
+  .floating-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+  
+  .route-line {
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-glow-blue);
+    animation: route-flow 3s linear infinite;
+  }
+}
+
+/* Animations unchanged */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(1deg); }
+  50% { transform: translateY(-5px) rotate(-1deg); }
+  75% { transform: translateY(-15px) rotate(0.5deg); }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 20px hsl(210 9% 40% / 0.3); transform: scale(1); }
+  100% { box-shadow: 0 0 40px hsl(210 9% 40% / 0.6); transform: scale(1.02); }
+}
+
+@keyframes route-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}

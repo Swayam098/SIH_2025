@@ -1,0 +1,166 @@
+/* Scoped buses page styles - prefix: .buses-root */
+
+/* root container used to scope all rules */
+.buses-root {
+  /* nothing necessary here, container styles are handled in inner selectors */
+}
+
+/* container with background + overlay */
+.buses-root .container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: #181c21;
+}
+
+.buses-root .pattern-bg {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    #232526 0px,
+    #232526 60px,
+    #23252699 70px,
+    #414345 130px
+  );
+  z-index: 0;
+}
+
+.buses-root .cube-svg {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  left: -30%;
+  top: -20%;
+  background: transparent;
+  opacity: 0.7;
+  z-index: 1;
+  pointer-events: none;
+  animation: cubeMove 18s linear infinite alternate;
+  mix-blend-mode: multiply;
+}
+
+@keyframes cubeMove {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-20%) scale(1.02) rotate(1deg);
+  }
+}
+
+.buses-root .page-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Navbar */
+.buses-root .navbar {
+  background: rgba(24, 24, 24, 0.95);
+  color: #fff;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  border-radius: 0 0 16px 16px;
+}
+
+.buses-root .navbar-title {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: hsl(214, 100%, 65%);
+}
+
+.buses-root .navbar select {
+  margin-left: 10px;
+  background: hsl(0, 0%, 20%);
+  color: #fff;
+  border: 1px solid hsl(0, 0%, 30%);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* Section container */
+.buses-root section {
+  background: rgba(30, 30, 30, 0.8);
+  margin: 32px auto;
+  padding: 32px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  max-width: 1000px;
+}
+
+.buses-root h2 {
+  color: hsl(214, 100%, 70%);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* Map container */
+.buses-root #map {
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+
+/* Layout */
+.buses-root .buses-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  margin-top: 24px;
+}
+
+.buses-root .buses-routes {
+  flex: 1;
+  background: rgba(50, 50, 50, 0.85);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  padding: 24px 18px;
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.buses-root .buses-map {
+  flex: 2;
+  min-width: 400px;
+}
+
+/* Route cards */
+.buses-root .route-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  background: rgba(40,40,40,0.85);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.buses-root .route-card.selected {
+  border: 2px solid hsl(214, 100%, 65%);
+  background: linear-gradient(135deg, hsl(214, 100%, 25%) 0%, hsl(214, 100%, 15%) 100%);
+}
+.buses-root .route-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+/* Stops list */
+.buses-root .stops-list {
+  margin-top: 12px;
+  padding-left: 8px;
+}
+.buses-root .stop-item {
+  background: hsl(0, 0%, 20%);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: hsl(210, 40%, 95%);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}

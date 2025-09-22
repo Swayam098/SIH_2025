@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartBus Hackathon Prototype</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; }
+    nav { display:flex; justify-content:space-between; align-items:center; padding:10px; background:#007bff; color:white; }
+    nav button { margin-left:10px; padding:5px 10px; background:white; color:#007bff; border:none; cursor:pointer; border-radius:4px; }
+    nav button.active { background:#0056b3; color:white; }
+    nav select { margin-left:10px; padding:5px; border-radius:4px; }
+    section { display:none; padding:20px; }
+    #map { height:400px; width:100%; border:1px solid #ccc; margin-top:10px; }
+    #bus-list div { margin-bottom:8px; cursor:pointer; }
+    h1,h2 { color:#007bff; }
+    #sms-output { border:1px solid #ccc; padding:10px; max-height:200px; overflow-y:auto; margin-top:10px; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <div style="font-weight:bold; font-size:20px;">SmartBus</div>
+  <div>
+    <button onclick="showSection('home')" class="active">Home</button>
+    <button onclick="showSection('buses')">Buses</button>
+    <button onclick="showSection('sms')">SMS Simulator</button>
+    <button onclick="showSection('about')">About</button>
+    <label for="lang" style="margin-left:10px; font-weight:normal;">Language:</label>
+    <select id="lang" onchange="updateLanguage(this.value)">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="ta">Tamil</option>
+    </select>
+  </div>
+</nav>
+
+<!-- Sections -->
+<section id="home">
+  <h1>Welcome to SmartBus</h1>
+  <p>Experience real-time bus tracking in your city. Know exact bus locations, ETAs, and stop details instantly.</p>
+  <ul>
+    <li>View live buses and routes</li>
+    <li>Simulate SMS queries for any bus</li>
+    <li>Multi-language support: English, Hindi, Tamil</li>
+  </ul>
+  <p><b>Tip for judges:</b> Switch sections and language to see how our system adapts in real-time!</p>
+</section>
+
+<section id="buses">
+  <h2>Live Buses</h2>
+  <div id="bus-list"></div>
+  <div id="map"></div>
+</section>
+
+<section id="sms">
+  <h2>SMS Simulator</h2>
+  <p>Type bus ID and simulate a user query:</p>
+  <input type="number" id="sms-bus-id" placeholder="Enter Bus ID" />
+  <button onclick="fetchSMSBus()">Send</button>
+  <div id="sms-output"></div>
+</section>
+
+<section id="about">
+  <h2>About SmartBus</h2>
+  <p>This project brings smart, real-time public transport tracking to tier-2 cities:</p>
+  <ul>
+    <li>GPS-based bus tracking with ETAs</li>
+    <li>Support for multiple languages (English, Hindi, Tamil)</li>
+    <li>Interactive SMS simulator for low-bandwidth users</li>
+    <li>Open-source prototype for municipalities and transport authorities</li>
+  </ul>
+</section>
+
+<script>
+const apiBase = "http://localhost:5000/api";
+let map, markers = [], routePolylines = [], stopMarkers = [];
+let routesData = [], selectedLang = 'en';
+let currentRouteLine;
+
+// --- Navbar logic ---
+function showSection(id) {
+  document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+  document.getElementById(id).style.display = "block";
+
+  document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+  document.querySelector(`nav button[onclick="showSection('${id}')"]`).classList.add("active");
+
+  if(id === "buses") fetchBuses();
+  if(id === "sms") fetchSMSBus();
+}
+showSection('home');
+
+// --- Language selector ---
+document.getElementById("lang").addEventListener("change", (e)=>{
+  selectedLang = e.target.value;
+  const activeSection = document.querySelector("section:not([style*='display:none'])").id;
+  if(activeSection === "buses") fetchBuses();
+  if(activeSection === "sms") fetchSMSBus();
+});
+
+// --- Fetch buses ---
+async function fetchBuses() {
+  try {
+    const res = await fetch(`${apiBase}/buses?lang=${selectedLang}`);
+    const buses = await res.json();
+    displayBuses(buses);
+    drawMap(buses);
+  } catch(err) {
+    console.error(err);
+    document.getElementById("bus-list").innerHTML = "<p>Failed to fetch buses. Make sure backend is running.</p>";
+  }
+}
+
+// --- Display buses list ---
+function displayBuses(buses){
+  const busListDiv = document.getElementById("bus-list");
+  busListDiv.innerHTML = "<h3>Live Buses</h3>";
+  buses.forEach(bus=>{
+    const busDiv = document.createElement("div");
+    busDiv.innerHTML = `
+      <b>Bus ${bus.bus_id}</b> | Route ${bus.route_id} <br>
+      Next Stop: ${bus.next_stop?.name_translated || "End"} (ETA: ${bus.eta_minutes || "N/A"} min) <br>
+      Location: ${bus.latitude?.toFixed(5)}, ${bus.longitude?.toFixed(5)}
+    `;
+    busListDiv.appendChild(busDiv);
+    busListDiv.appendChild(document.createElement("hr"));
+
+    // Hover to highlight route
+    busDiv.addEventListener("mouseenter", ()=>highlightRoute(bus.route_id));
+    busDiv.addEventListener("mouseleave", ()=>clearHighlightedRoute());
+  });
+}
+
+// --- Draw map ---
+async function drawMap(buses){
+  if(!map){
+    map = L.map("map").setView([11.025, 76.905], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:"&copy; OpenStreetMap contributors"
+    }).addTo(map);
+  }
+
+  // Clear old markers and lines
+  markers.forEach(m=>map.removeLayer(m));
+  markers = [];
+  routePolylines.forEach(l=>map.removeLayer(l));
+  routePolylines = [];
+  stopMarkers.forEach(s=>map.removeLayer(s));
+  stopMarkers = [];
+
+  try{
+    const res = await fetch(`${apiBase}/routes?lang=${selectedLang}`);
+    routesData = await res.json();
+
+    // Draw all stops & polylines
+    routesData.forEach(route=>{
+      // stops
+      route.stops.forEach(stop=>{
+        const sm = L.circleMarker([stop.lat, stop.lon], {
+          radius:5, color:'green', fillColor:'green', fillOpacity:0.8
+        }).bindPopup(stop.name_translated).addTo(map);
+        stopMarkers.push(sm);
+      });
+
+      // ✅ Use pre-stored polyline if available
+      if(route.polyline && route.polyline.length > 0){
+        const pl = L.polyline(route.polyline, {color:'blue', weight:4}).addTo(map);
+        routePolylines.push(pl);
+      } else {
+        // fallback to straight lines
+        const latlngs = route.stops.map(s=>[s.lat,s.lon]);
+        const pl = L.polyline(latlngs, {color:'gray', dashArray:"5,5"}).addTo(map);
+        routePolylines.push(pl);
+      }
+    });
+
+    // Add bus markers
+    buses.forEach(bus=>{
+      if(bus.latitude && bus.longitude){
+        const m = L.marker([bus.latitude, bus.longitude], {icon:L.icon({
+          iconUrl:'https://cdn-icons-png.flaticon.com/512/61/61239.png',
+          iconSize:[25,25]
+        })}).addTo(map)
+          .bindPopup(`Bus ${bus.bus_id}<br>Next Stop: ${bus.next_stop?.name_translated || "End"}<br>ETA: ${bus.eta_minutes || "N/A"} min`);
+        markers.push(m);
+      }
+    });
+
+    // Fit map to bounds
+    const allLatLngs = [].concat(
+      ...routesData.map(r => (r.polyline && r.polyline.length>0) ? r.polyline : r.stops.map(s=>[s.lat,s.lon]))
+    );
+    if(allLatLngs.length>0) map.fitBounds(allLatLngs);
+
+  }catch(err){ console.error("Failed to fetch routes:",err); }
+}
+
+// --- Highlight route on hover ---
+function highlightRoute(routeId){
+  if(currentRouteLine) map.removeLayer(currentRouteLine);
+  const route = routesData.find(r=>r.id===routeId || r.route_id===routeId);
+  if(!route) return;
+
+  if(route.polyline && route.polyline.length>0){
+    currentRouteLine = L.polyline(route.polyline,{color:'orange',weight:5}).addTo(map);
+    map.fitBounds(route.polyline);
+  } else {
+    const latlngs = route.stops.map(s=>[s.lat,s.lon]);
+    currentRouteLine = L.polyline(latlngs,{color:'orange',weight:5}).addTo(map);
+    map.fitBounds(latlngs);
+  }
+}
+function clearHighlightedRoute(){
+  if(currentRouteLine){ map.removeLayer(currentRouteLine); currentRouteLine=null; }
+}
+
+// --- SMS simulator ---
+async function fetchSMSBus(){
+  const busId = parseInt(document.getElementById("sms-bus-id").value);
+  if(isNaN(busId)) return;
+  try{
+    const res = await fetch(`${apiBase}/buses?lang=${selectedLang}`);
+    const buses = await res.json();
+    const bus = buses.find(b=>b.bus_id===busId);
+    const output = bus ? `
+      Bus ${bus.bus_id} | Route ${bus.route_id}<br>
+      Next Stop: ${bus.next_stop?.name_translated || "End"}<br>
+      ETA: ${bus.eta_minutes || "N/A"} min<br>
+      Location: ${bus.latitude?.toFixed(5)}, ${bus.longitude?.toFixed(5)}
+    ` : "Bus not found";
+    document.getElementById("sms-output").innerHTML = output;
+  }catch(err){
+    console.error(err);
+    document.getElementById("sms-output").innerHTML = "Failed to fetch bus data";
+  }
+}
+
+// --- Auto-refresh ---
+setInterval(()=>{
+  const activeSection = document.querySelector("section:not([style*='display:none'])").id;
+  if(activeSection==='buses') fetchBuses();
+  if(activeSection==='sms') fetchSMSBus();
+},1000);
+</script>
+
+</body>
+</html>
