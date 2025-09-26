@@ -1,4 +1,4 @@
-# SH_2025
+# SIH_2025
 
 A project by **N-Jishnu**
 
